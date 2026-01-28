@@ -3,7 +3,7 @@ export interface ReceiptData {
   fileName: string;
   imageUrl: string;
   amount: number; // 0 if not found
-  date?: string;
+  date?: number;
   status: 'processing' | 'done' | 'error';
   rawText?: string;
 }

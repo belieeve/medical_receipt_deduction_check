@@ -3,60 +3,77 @@ import { UploadZone } from './components/UploadZone';
 import { ReceiptList } from './components/ReceiptList';
 import { SummaryCard } from './components/SummaryCard';
 import { processReceiptImage } from './utils/ocr';
+import { db } from './db';
+import { useLiveQuery } from 'dexie-react-hooks';
 import type { ReceiptData } from './types';
 import { ScanLine } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function App() {
-  const [receipts, setReceipts] = useState<ReceiptData[]>([]);
+  /* 
+   * Use Dexie's useLiveQuery to automatically sync with the DB.
+   * This replaces the simple useState for receipts.
+   */
+  const receipts = useLiveQuery(async () => {
+    const recs = await db.receipts.orderBy('date').reverse().toArray();
+    // Convert Blobs back to URLs for display
+    return recs.map(r => ({
+      ...r,
+      imageUrl: URL.createObjectURL(r.imageBlob)
+    }));
+  }, []) || [];
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [deductionThreshold] = useState(100000);
 
   const handleFileSelect = async (files: File[]) => {
     setIsProcessing(true);
 
-    // Create placeholders immediately
-    const newReceipts: ReceiptData[] = files.map(file => ({
-      id: Math.random().toString(36).substr(2, 9),
-      fileName: file.name,
-      imageUrl: URL.createObjectURL(file), // Create preview URL
-      amount: 0,
-      status: 'processing'
-    }));
+    for (const file of files) {
+      const id = Math.random().toString(36).substr(2, 9);
 
-    setReceipts(prev => [...prev, ...newReceipts]);
+      // 1. Add initial record to DB
+      await db.receipts.add({
+        id,
+        fileName: file.name,
+        imageBlob: file, // Save the file object directly as Blob
+        amount: 0,
+        date: Date.now(),
+        status: 'processing'
+      });
 
-    // Process each file
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const receiptId = newReceipts[i].id;
-
+      // 2. Process OCR
       try {
         const { amount, text } = await processReceiptImage(file);
 
-        setReceipts(prev => prev.map(r =>
-          r.id === receiptId
-            ? { ...r, amount, status: 'done', rawText: text } // Update with real result
-            : r
-        ));
+        // 3. Update DB record with result
+        await db.receipts.update(id, {
+          amount,
+          status: 'done',
+          rawText: text
+        });
       } catch (e) {
-        setReceipts(prev => prev.map(r =>
-          r.id === receiptId
-            ? { ...r, status: 'error' }
-            : r
-        ));
+        await db.receipts.update(id, {
+          status: 'error'
+        });
       }
     }
 
     setIsProcessing(false);
   };
 
-  const handleDelete = (id: string) => {
-    setReceipts(prev => prev.filter(r => r.id !== id));
+  const handleDelete = async (id: string) => {
+    await db.receipts.delete(id);
   };
 
-  const handleUpdateAmount = (id: string, amount: number) => {
-    setReceipts(prev => prev.map(r => r.id === id ? { ...r, amount } : r));
+  const handleClearAll = async () => {
+    if (window.confirm('すべてのデータを削除しますか？この操作は取り消せません。')) {
+      await db.receipts.clear();
+    }
+  };
+
+  const handleUpdateAmount = async (id: string, amount: number) => {
+    await db.receipts.update(id, { amount });
   };
 
   const currentTotal = useMemo(() => {
@@ -78,7 +95,7 @@ function App() {
           </div>
 
           <button
-            onClick={() => setReceipts([])}
+            onClick={handleClearAll}
             className="text-sm text-slate-400 hover:text-white transition-colors border border-slate-700 rounded-lg px-3 py-1.5 bg-slate-800/50"
             disabled={receipts.length === 0}
           >
@@ -126,7 +143,8 @@ function App() {
             </div>
 
             <div className="text-xs text-slate-500 text-center px-4">
-              ※ プライバシー保護のため、画像データはサーバーに送信されず、すべてブラウザ内で処理されます。
+              ※ データはブラウザ内（IndexedDB）に保存されます。<br />
+              プライバシー保護のため、外部サーバーには一切送信されません。
             </div>
           </div>
 
@@ -134,7 +152,7 @@ function App() {
           <div className="lg:col-span-7">
             {receipts.length > 0 ? (
               <ReceiptList
-                receipts={receipts}
+                receipts={receipts as ReceiptData[]} // Cast is safe because we map blob to url
                 onDelete={handleDelete}
                 onUpdateAmount={handleUpdateAmount}
               />
