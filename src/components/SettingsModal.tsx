@@ -31,7 +31,22 @@ function doPost(e) {
     
     // ヘッダー行がない場合は追加
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["日付", "金額", "内容", "ファイル名", "ID"]);
+      sheet.appendRow(["日付", "金額", "内容", "ファイル名", "ID", "画像URL"]);
+    }
+
+    // 画像の保存処理
+    var fileUrl = "";
+    if (data.image) {
+       var folderName = "医療費領収証"; 
+       var folders = DriveApp.getFoldersByName(folderName);
+       var folder;
+       if (folders.hasNext()) { folder = folders.next(); } 
+       else { folder = DriveApp.createFolder(folderName); }
+       
+       var blob = Utilities.newBlob(Utilities.base64Decode(data.image), data.mimeType, data.fileName);
+       var file = folder.createFile(blob);
+       file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+       fileUrl = file.getUrl();
     }
     
     // データを追加
@@ -40,7 +55,8 @@ function doPost(e) {
       data.amount,
       data.text,
       data.fileName,
-      data.id
+      data.id,
+      fileUrl
     ]);
     
     return ContentService.createTextOutput(JSON.stringify({status: "success"}))
