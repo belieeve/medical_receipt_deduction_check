@@ -3,14 +3,25 @@ import { Calculator, TrendingUp, AlertTriangle } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
 
+import { generateCSV, downloadCSV } from '../utils/csv';
+import { ReceiptData } from '../types';
+import { Download, FileSpreadsheet } from 'lucide-react';
+
 interface SummaryCardProps {
     totalAmount: number;
     deductionThreshold: number;
+    receipts?: ReceiptData[]; // Pass receipts data for export
 }
 
-export const SummaryCard: React.FC<SummaryCardProps> = ({ totalAmount, deductionThreshold }) => {
+export const SummaryCard: React.FC<SummaryCardProps> = ({ totalAmount, deductionThreshold, receipts = [] }) => {
     const diff = totalAmount - deductionThreshold;
     const isEligible = diff > 0;
+
+    const handleExport = () => {
+        if (receipts.length === 0) return;
+        const csvContent = generateCSV(receipts);
+        downloadCSV(csvContent, `医療費控除データ_${new Date().toLocaleDateString('ja-JP').replace(/\//g, '-')}.csv`);
+    };
 
     return (
         <motion.div
@@ -19,18 +30,42 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ totalAmount, deduction
             className="glass-panel p-6 md:p-8"
         >
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <div className="space-y-1">
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <Calculator className="w-6 h-6 text-primary" />
-                        集計結果
+                <div className="space-y-1 w-full md:w-auto">
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2 justify-between md:justify-start">
+                        <div className="flex items-center gap-2">
+                            <Calculator className="w-6 h-6 text-primary" />
+                            集計結果
+                        </div>
+
+                        {/* Mobile Export Button */}
+                        <button
+                            onClick={handleExport}
+                            disabled={receipts.length === 0}
+                            className="md:hidden p-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 disabled:opacity-50"
+                            title="CSV出力"
+                        >
+                            <Download className="w-5 h-5" />
+                        </button>
                     </h2>
                     <p className="text-slate-400 text-sm">医療費控除の目安をリアルタイムで計算</p>
                 </div>
 
-                <div className="w-full md:w-auto flex flex-row md:flex-col justify-between md:justify-start items-center md:items-end gap-1 p-3 md:p-0 bg-slate-800/30 md:bg-transparent rounded-lg md:rounded-none border border-slate-700/50 md:border-none">
-                    <div className="text-sm text-slate-400">合計医療費</div>
-                    <div className="text-2xl md:text-3xl font-bold text-white font-mono tracking-tight">
-                        ¥ {totalAmount.toLocaleString()}
+                <div className="w-full md:w-auto flex flex-row items-end gap-3">
+                    {/* Desktop Export Button */}
+                    <button
+                        onClick={handleExport}
+                        disabled={receipts.length === 0}
+                        className="hidden md:flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm transition-colors border border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed mr-2"
+                    >
+                        <FileSpreadsheet className="w-4 h-4 text-green-500" />
+                        CSV出力
+                    </button>
+
+                    <div className="flex-1 md:flex-none flex flex-row md:flex-col justify-between md:justify-start items-center md:items-end gap-1 p-3 md:p-0 bg-slate-800/30 md:bg-transparent rounded-lg md:rounded-none border border-slate-700/50 md:border-none">
+                        <div className="text-sm text-slate-400">合計医療費</div>
+                        <div className="text-2xl md:text-3xl font-bold text-white font-mono tracking-tight">
+                            ¥ {totalAmount.toLocaleString()}
+                        </div>
                     </div>
                 </div>
             </div>

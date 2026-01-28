@@ -133,6 +133,7 @@ function App() {
             <SummaryCard
               totalAmount={currentTotal}
               deductionThreshold={deductionThreshold}
+              receipts={receipts as ReceiptData[]}
             />
 
             <div className="pt-4">
