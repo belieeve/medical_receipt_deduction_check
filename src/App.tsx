@@ -112,19 +112,21 @@ function App() {
             </h1>
           </div>
 
-          <button
-            onClick={handleClearAll}
-            className="text-sm text-slate-400 hover:text-white transition-colors border border-slate-700 rounded-lg px-3 py-1.5 bg-slate-800/50"
-            disabled={receipts.length === 0}
-          >
-            すべて削除
-          </button>
-          <button
-            onClick={() => setIsSettingsOpen(true)}
-            className="text-slate-400 hover:text-white transition-colors p-2"
-          >
-            <SettingsIcon className="w-6 h-6" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleClearAll}
+              className="text-xs md:text-sm text-slate-400 hover:text-white transition-colors border border-slate-700 rounded-lg px-2 py-1.5 md:px-3 bg-slate-800/50"
+              disabled={receipts.length === 0}
+            >
+              削除
+            </button>
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-slate-800/50"
+            >
+              <SettingsIcon className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       </header>
 
