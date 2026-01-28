@@ -26,11 +26,11 @@ export const ReceiptList: React.FC<ReceiptListProps> = ({ receipts, onDelete, on
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             layout
-                            className="glass-panel p-4 relative group hover:bg-slate-800/80 transition-colors"
+                            className="glass-panel p-3 md:p-4 relative group hover:bg-slate-800/80 transition-colors"
                         >
                             <button
                                 onClick={() => onDelete(receipt.id)}
-                                className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-800/50 hover:bg-red-500/20 hover:text-red-400 text-slate-400 opacity-0 group-hover:opacity-100 transition-all"
+                                className="absolute top-2 right-2 p-2 rounded-full bg-slate-800 hover:bg-red-500/20 hover:text-red-400 text-slate-400 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all z-10"
                             >
                                 <Trash2 className="w-4 h-4" />
                             </button>

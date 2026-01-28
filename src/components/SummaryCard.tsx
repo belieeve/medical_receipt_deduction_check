@@ -27,9 +27,9 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({ totalAmount, deduction
                     <p className="text-slate-400 text-sm">医療費控除の目安をリアルタイムで計算</p>
                 </div>
 
-                <div className="flex flex-col items-end gap-1">
+                <div className="w-full md:w-auto flex flex-row md:flex-col justify-between md:justify-start items-center md:items-end gap-1 p-3 md:p-0 bg-slate-800/30 md:bg-transparent rounded-lg md:rounded-none border border-slate-700/50 md:border-none">
                     <div className="text-sm text-slate-400">合計医療費</div>
-                    <div className="text-3xl font-bold text-white font-mono tracking-tight">
+                    <div className="text-2xl md:text-3xl font-bold text-white font-mono tracking-tight">
                         ¥ {totalAmount.toLocaleString()}
                     </div>
                 </div>

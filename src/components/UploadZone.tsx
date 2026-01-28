@@ -1,5 +1,5 @@
 import React from 'react';
-import { Upload, Loader2 } from 'lucide-react';
+import { Camera, Loader2 } from 'lucide-react';
 import { clsx } from 'clsx';
 
 interface UploadZoneProps {
@@ -47,21 +47,21 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onFileSelect, isProcessi
                 className="absolute inset-0 cursor-pointer opacity-0 z-10"
             />
 
-            <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-                <div className="mb-6 rounded-full bg-slate-800 p-4 shadow-xl ring-1 ring-slate-700 group-hover:bg-primary/20 group-hover:ring-primary/50 transition-all duration-300">
+            <div className="flex flex-col items-center justify-center py-10 md:py-16 px-6 text-center">
+                <div className="mb-4 md:mb-6 rounded-full bg-slate-800 p-4 shadow-xl ring-1 ring-slate-700 group-hover:bg-primary/20 group-hover:ring-primary/50 transition-all duration-300">
                     {isProcessing ? (
-                        <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                        <Loader2 className="h-8 w-8 md:h-10 md:w-10 text-primary animate-spin" />
                     ) : (
-                        <Upload className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
+                        <Camera className="h-8 w-8 md:h-10 md:w-10 text-primary group-hover:scale-110 transition-transform duration-300" />
                     )}
                 </div>
 
-                <h3 className="mb-2 text-xl font-bold text-white">
-                    {isProcessing ? '解析中...' : '領収証をここにドロップ'}
+                <h3 className="mb-2 text-lg md:text-xl font-bold text-white">
+                    {isProcessing ? '解析中...' : '写真を撮る / 選択'}
                 </h3>
-                <p className="text-sm text-slate-400 max-w-xs mx-auto">
-                    またはクリックしてファイルを選択<br />
-                    (JPG, PNG 対応)
+                <p className="text-xs md:text-sm text-slate-400 max-w-xs mx-auto dark:text-slate-400">
+                    <span className="md:hidden">タップしてカメラを起動または画像を選択</span>
+                    <span className="hidden md:inline">クリックまたはドラッグ＆ドロップ</span>
                 </p>
             </div>
 

@@ -67,10 +67,10 @@ function App() {
     <div className="min-h-screen pb-20">
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-900/80 border-b border-white/5">
-        <div className="container py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/20 p-2 rounded-lg ring-1 ring-primary/30">
-              <ScanLine className="w-6 h-6 text-primary" />
+        <div className="container py-3 md:py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="bg-primary/20 p-1.5 md:p-2 rounded-lg ring-1 ring-primary/30">
+              <ScanLine className="w-5 h-5 md:w-6 md:h-6 text-primary" />
             </div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
               Medical Tax Checker
@@ -87,13 +87,13 @@ function App() {
         </div>
       </header>
 
-      <main className="container mt-8 space-y-12">
+      <main className="container mt-6 md:mt-8 space-y-8 md:space-y-12">
         {/* Intro */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold text-white tracking-tight"
+            className="text-3xl md:text-5xl font-bold text-white tracking-tight"
           >
             医療費控除を<span className="gradient-text">瞬時に計算</span>
           </motion.h2>
