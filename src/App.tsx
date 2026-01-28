@@ -73,16 +73,16 @@ function App() {
               <ScanLine className="w-5 h-5 md:w-6 md:h-6 text-primary" />
             </div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-              Medical Tax Checker
+              医療費控除チェッカー
             </h1>
           </div>
 
           <button
             onClick={() => setReceipts([])}
-            className="text-sm text-slate-400 hover:text-white transition-colors"
+            className="text-sm text-slate-400 hover:text-white transition-colors border border-slate-700 rounded-lg px-3 py-1.5 bg-slate-800/50"
             disabled={receipts.length === 0}
           >
-            Clear All
+            すべて削除
           </button>
         </div>
       </header>
