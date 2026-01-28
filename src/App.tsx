@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { UploadZone } from './components/UploadZone';
 import { ReceiptList } from './components/ReceiptList';
 import { SummaryCard } from './components/SummaryCard';
@@ -6,8 +6,10 @@ import { processReceiptImage } from './utils/ocr';
 import { db } from './db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import type { ReceiptData } from './types';
-import { ScanLine } from 'lucide-react';
+import { ScanLine, Settings as SettingsIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SettingsModal } from './components/SettingsModal';
+import { sendToGas } from './utils/gas';
 
 function App() {
   /* 
@@ -25,6 +27,13 @@ function App() {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [deductionThreshold] = useState(100000);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [gasUrl, setGasUrl] = useState(() => localStorage.getItem('gasUrl') || '');
+
+  // Persist GAS URL
+  useEffect(() => {
+    if (gasUrl) localStorage.setItem('gasUrl', gasUrl);
+  }, [gasUrl]);
 
   const handleFileSelect = async (files: File[]) => {
     setIsProcessing(true);
@@ -52,6 +61,15 @@ function App() {
           status: 'done',
           rawText: text
         });
+
+        // 4. Send to GAS if URL is configured
+        if (gasUrl) {
+          const record = await db.receipts.get(id);
+          if (record) {
+            // Processing async to not block UI updates too much, or await if we want to ensure
+            sendToGas(record, gasUrl).catch(err => console.error(err));
+          }
+        }
       } catch (e) {
         await db.receipts.update(id, {
           status: 'error'
@@ -101,8 +119,22 @@ function App() {
           >
             すべて削除
           </button>
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="text-slate-400 hover:text-white transition-colors p-2"
+          >
+            <SettingsIcon className="w-6 h-6" />
+          </button>
         </div>
       </header>
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        gasUrl={gasUrl}
+        onSave={(url) => setGasUrl(url)}
+      />
 
       <main className="container mt-6 md:mt-8 space-y-8 md:space-y-12">
         {/* Intro */}
